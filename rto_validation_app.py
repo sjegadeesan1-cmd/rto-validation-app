@@ -49,11 +49,11 @@ if rto_file and plan_file:
     rto_plan = pd.read_excel(plan_file, sheet_name="Sheet1", engine="openpyxl", header=2)
     rto_plan['Employee ID'] = pd.to_numeric(rto_plan['Employee ID'], errors='coerc
 
-    depute_branch_map = rto_plan.drop_duplicates('TCS_Employee ID').set_index('TCS_Employee ID')['Depute Branch'].to_dict()
+    depute_branch_map = rto_plan.drop_duplicates('Employee ID').set_index('Employee ID')['Depute Branch'].to_dict()
     extracted_df['Base Branch'] = extracted_df['Employee ID'].map(depute_branch_map)
 
     wfh_flags = rto_plan.iloc[:, 6:-2].applymap(lambda x: str(x).strip().upper() == 'WFH')
-    wfh_counts = wfh_flags.groupby(rto_plan['TCS_Employee ID']).sum().sum(axis=1)
+    wfh_counts = wfh_flags.groupby(rto_plan['Employee ID']).sum().sum(axis=1)
     extracted_df['#of days exception given as per RTO roaster'] = extracted_df['Employee ID'].map(wfh_counts).fillna(0).astype(int)
 
     extracted_df['Exception approved by HR'] = "Exception approved by HR due to medical issues"
