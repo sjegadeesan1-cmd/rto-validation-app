@@ -63,7 +63,11 @@ if rto_file and plan_file:
     wfh_counts = wfh_flags.groupby(rto_plan['Employee ID']).sum().sum(axis=1)
     extracted_df['#of days exception given as per RTO roaster'] = extracted_df['Employee ID'].map(wfh_counts).fillna(0).astype(int)
 
-    extracted_df['Exception approved by HR'] = "Exception approved by HR due to medical issues"
+    # ✅ Apply HR approval only to specific Employee IDs
+    approved_ids = [2550156, 2549827, 2549950, 2549825, 2549774, 2446423, 2549786]
+    extracted_df['Exception approved by HR'] = extracted_df['Employee ID'].apply(
+        lambda x: "Exception approved by HR due to medical issues" if x in approved_ids else ""
+    )
 
     remarks = []
     for idx, row in extracted_df.iterrows():
@@ -87,3 +91,4 @@ if rto_file and plan_file:
     output.seek(0)
 
     st.download_button("Download Validated Output", output, "RTO_Validation_Output.xlsx")
+``
