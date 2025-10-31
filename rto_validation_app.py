@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -46,12 +45,21 @@ if rto_file and plan_file:
 
     extracted_df['#Number of request raised'] = extracted_df.groupby('Employee ID')['Employee ID'].transform('count')
 
-    rto_plan = pd.read_excel(plan_file, sheet_name="Sheet1", engine="openpyxl", header=2)
-    rto_plan['Employee ID'] = pd.to_numeric(rto_plan['Employee ID'], errors='coerce')
-    depute_branch_map = rto_plan.drop_duplicates('Employee ID').set_index('Employee ID')['Depute Branch'].to_dict()
-    extracted_df['Base Branch'] = extracted_df['Employee ID'].map(depute_branch_map)
+    rto_plan = pd.read_excel(plan_file, sheet_name="Sheet1", engine="openpyxl", header=0)
+    rto_plan.columns = rto_plan.columns.str.strip()
 
-    wfh_flags = rto_plan.iloc[:, 6:-2].applymap(lambda x: str(x).strip().upper() == 'WFH')
+    if 'Employee ID' in rto_plan.columns:
+        rto_plan['Employee ID'] = pd.to_numeric(rto_plan['Employee ID'], errors='coerce')
+    else:
+        st.error("Column 'Employee ID' not found in RTO Plan file.")
+
+    if 'Depute Branch' in rto_plan.columns:
+        depute_branch_map = rto_plan.drop_duplicates('Employee ID').set_index('Employee ID')['Depute Branch'].to_dict()
+        extracted_df['Base Branch'] = extracted_df['Employee ID'].map(depute_branch_map)
+    else:
+        st.error("Column 'Depute Branch' not found in RTO Plan file.")
+
+    wfh_flags = rto_plan.iloc[:, 3:-1].applymap(lambda x: str(x).strip().upper() == 'WFH')
     wfh_counts = wfh_flags.groupby(rto_plan['Employee ID']).sum().sum(axis=1)
     extracted_df['#of days exception given as per RTO roaster'] = extracted_df['Employee ID'].map(wfh_counts).fillna(0).astype(int)
 
