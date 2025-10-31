@@ -46,7 +46,7 @@ if rto_file and plan_file:
 
     extracted_df['#Number of request raised'] = extracted_df.groupby('Employee ID')['Employee ID'].transform('count')
 
-    rto_plan = pd.read_excel(plan_file, sheet_name="DS", engine="openpyxl", header=2)
+    rto_plan = pd.read_excel(plan_file, sheet_name="Sheet1", engine="openpyxl", header=2)
     rto_plan['TCS_Employee ID'] = pd.to_numeric(rto_plan['TCS_Employee ID'], errors='coerce')
 
     depute_branch_map = rto_plan.drop_duplicates('TCS_Employee ID').set_index('TCS_Employee ID')['Depute Branch'].to_dict()
